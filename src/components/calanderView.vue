@@ -21,6 +21,9 @@ const calendarOptions = reactive({
   select: (event: any) => {
     console.log(event)
   },
+  eventClick: (e: any) => {
+    console.log(e)
+  },
   events: [
     { title: 'event 1', date: '2023-03-01' },
     { title: 'event 2', date: '2023-03-02' }
