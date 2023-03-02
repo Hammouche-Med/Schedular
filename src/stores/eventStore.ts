@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia'
 
 export interface Event {
-  id: string
+  id: number
   title: string
   start: string
   end: string
-  allDay: string
+  allDay: boolean
 }
 
 export const useEventStore = defineStore('event', {
@@ -16,25 +16,25 @@ export const useEventStore = defineStore('event', {
     }
   },
   actions: {
-    getEvents() {
+    async getEvents() {
       return this.events
     },
-    setEvents(list: Event[]) {
+    async setEvents(list: Event[]) {
       this.events = list
     },
-    getEvent(id: string | undefined) {
+    async getEvent(id: number | undefined) {
       if (id != undefined) return this.events.find((event) => event.id == id)
     },
-    addEvent(event: Event) {
+    async addEvent(event: Event) {
       return this.events.push(event)
     },
-    removeEvent(id: string | undefined) {
+    async removeEvent(id: number | undefined) {
       this.events = this.events.filter((event) => event.id != id)
     },
-    updateEvent(id: string | undefined, data: Event) {
+    async updateEvent(id: number | undefined, data: Event) {
       this.events = this.events.map((event) => (event.id !== id ? event : data))
     },
-    resetDraft() {
+    async resetDraft() {
       this.draftEvent = {} as Event
     }
   },
