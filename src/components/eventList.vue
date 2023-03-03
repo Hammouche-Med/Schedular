@@ -3,26 +3,37 @@ import { useEventStore } from '@/stores/eventStore'
 import { useLoadingStore } from '@/stores/loader.store'
 const eventStore = useEventStore()
 const loaderStore = useLoadingStore()
-
-const handleDelete = async (id: number) => {
+const handleDelete = async (id: string) => {
   loaderStore.setLoading(true)
   setTimeout(() => {
     eventStore.removeEvent(id)
     loaderStore.setLoading(false)
-  }, 1000)
+  }, 500)
 }
 </script>
 <template>
-  <ul v-if="eventStore.events.length > 0" class="list-group">
+  <ul
+    v-if="eventStore.events.length > 0"
+    draggable
+    class="list-group fc-events-list"
+    id="fc-events-list"
+  >
     <li
       v-for="e in eventStore.events"
       :key="e.id"
-      class="list-group-item d-flex justify-content-between rounded-pill border border-info m-2"
+      class="list-group-item d-flex fc-event justify-content-between"
       draggable="true"
+      :id="e.id"
+      @dblclick="handleDelete(e.id)"
+      :title="e.title"
     >
-      {{ e.title }}
-
-      <button @click="handleDelete(e.id)" class="badge bg-danger rounded-pill">X</button>
+      <div class="ms-2 me-auto">
+        <div class="fw-bold">{{ e.title }}</div>
+        <div v-if="e.start && e.end">
+          {{ new Date(e.start).toLocaleString() }} - {{ new Date(e.end).toLocaleString() }}
+        </div>
+        <div v-if="e.start && !e.end">{{ new Date(e.start).toLocaleDateString() }}</div>
+      </div>
     </li>
   </ul>
 

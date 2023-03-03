@@ -3,6 +3,7 @@ import { createPinia } from 'pinia'
 import piniaPersist from 'pinia-plugin-persist'
 
 import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-icons/font/bootstrap-icons.css'
 
 import App from './App.vue'
 import router from './router'
@@ -14,3 +15,6 @@ pinia.use(piniaPersist)
 app.use(pinia)
 
 app.mount('#app')
+
+//TODO: update calander on delete event
+//TODO: delete event from calander
