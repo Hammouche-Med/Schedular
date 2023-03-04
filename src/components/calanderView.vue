@@ -2,13 +2,46 @@
 import FullCalendar from '@fullcalendar/vue3'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
-import interactionPlugin, { Draggable } from '@fullcalendar/interaction'
-import { onMounted, reactive } from 'vue'
+import interactionPlugin from '@fullcalendar/interaction'
+import { ref } from 'vue'
 import { useEventStore } from '@/stores/eventStore'
+import { useLoadingStore } from '@/stores/loader.store'
+import Swal from 'sweetalert2'
 
+//load the event store
 const eventStore = useEventStore()
 
-const calendarOptions = reactive({
+//load the loader store (no pun intended)
+const loaderStore = useLoadingStore()
+
+//used to reload component after change
+const calendarKey = ref(1)
+
+//handle the event delete from the calendar
+const handleDelete = async (e: any) => {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: "You won't be able to revert this!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, delete it!'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      loaderStore.setLoading(true)
+      setTimeout(() => {
+        eventStore.removeEvent(e.event.id)
+        loaderStore.setLoading(false)
+        calendarKey.value += 1
+      }, 500)
+      Swal.fire('Deleted!', 'Your file has been deleted.', 'success')
+    }
+  })
+}
+
+//specify options for calander and event handelers
+const calendarOptions = {
   plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
   initialView: 'dayGridMonth',
   headerToolbar: {
@@ -20,20 +53,10 @@ const calendarOptions = reactive({
   droppable: true,
   weekends: true,
   dropAccept: '.fc-event',
-  drop: (e: any) => {
-    console.log('drop-----', e)
-  },
-  select: (e: any) => {
-    console.log('select-----', e)
-  },
   eventClick: (e: any) => {
-    console.log('event-click-----', e)
-  },
-  eventAdd: (e: any) => {
-    console.log('add-----', e)
+    handleDelete(e)
   },
   eventChange: (e: any) => {
-    console.log('upd-----', e)
     eventStore.updateEvent(e.event.id, {
       id: e.event.id,
       title: e.event.title,
@@ -43,11 +66,7 @@ const calendarOptions = reactive({
       on_cal: true
     })
   },
-  eventRemove: (e: any) => {
-    console.log('del-----', e)
-  },
   eventReceive: (e: any) => {
-    console.log('rec-----', e)
     eventStore.updateEvent(e.event.id, {
       id: e.event.id,
       title: e.draggedEl.title,
@@ -57,25 +76,14 @@ const calendarOptions = reactive({
       on_cal: true
     })
     document.getElementById(e.event.id)?.classList.remove('fc-event')
-  },
-  events: eventStore.events
-})
-
-onMounted(() => {
-  const container = document.getElementById('fc-events-list')
-  if (container)
-    new Draggable(container, {
-      itemSelector: '.fc-event',
-      eventData: (e_El) => {
-        return {
-          id: e_El.id,
-          title: e_El.title,
-          slot: e_El.slot
-        }
-      }
-    })
-})
+  }
+}
 </script>
 <template>
-  <FullCalendar id="mycalendar" :options="calendarOptions" />
+  <FullCalendar
+    id="mycalendar"
+    :key="calendarKey"
+    :events="eventStore.events"
+    :options="calendarOptions"
+  />
 </template>

@@ -1,15 +1,8 @@
 <script setup lang="ts">
 import { useEventStore } from '@/stores/eventStore'
-import { useLoadingStore } from '@/stores/loader.store'
+
+//load the event store
 const eventStore = useEventStore()
-const loaderStore = useLoadingStore()
-const handleDelete = async (id: string) => {
-  loaderStore.setLoading(true)
-  setTimeout(() => {
-    eventStore.removeEvent(id)
-    loaderStore.setLoading(false)
-  }, 500)
-}
 </script>
 <template>
   <ul
@@ -24,7 +17,6 @@ const handleDelete = async (id: string) => {
       class="list-group-item d-flex fc-event justify-content-between"
       draggable="true"
       :id="e.id"
-      @dblclick="handleDelete(e.id)"
       :title="e.title"
     >
       <div class="ms-2 me-auto">
